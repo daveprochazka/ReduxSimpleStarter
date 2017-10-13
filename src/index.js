@@ -5,13 +5,13 @@ import YTSearch from 'youtube-api-search';
 
 //class imports
 import SearchBar from './components/search_bar';
-import ButtonWarning from './components/button_warn';
 import VideoList from './components/video_list';
+import VideoDetail from './components/video_detail';
 
 //Constant values
 const API_KEY = 'AIzaSyBSbBioqmNegUzcQQrr5_LRuJ4mWL30yXk';
 
-
+const DEFAULT_SEARCH= 'surfboards';
 //create a new component
 //this component should produce some html
 class App extends Component{
@@ -19,21 +19,31 @@ class App extends Component{
     constructor(props){
         super(props);
 
-        this.state ={videos: []};
+        this.state ={
+            videos: [],
+            selectedVideo: null
+        };
 
-        YTSearch({key: API_KEY, term: 'surfboards'}, (videos) =>
-            {this.setState({videos})
+        this.videoSearch(DEFAULT_SEARCH)
+    }
+
+    videoSearch(term){
+        YTSearch({key: API_KEY, term: term}, (videos) =>
+            {this.setState({
+                videos: videos,
+                selectedVideo: videos[0]
+            });
         });
     }
     render(){
         return(
             <div>
                 <div>
-                    <SearchBar />
-                    <VideoList videos={this.state.videos}/>
-                </div>
-                <div>
-                    <ButtonWarning />
+                    <SearchBar onSearchTermChange={term => this.videoSearch(term)}/>
+                    <VideoDetail video={this.state.selectedVideo} />
+                    <VideoList
+                        onVideoSelect={selectedVideo => this.setState({selectedVideo})}
+                        videos={this.state.videos}/>
                 </div>
             </div>
         );
